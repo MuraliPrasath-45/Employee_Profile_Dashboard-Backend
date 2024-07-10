@@ -1,17 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Employee = require('../models/employee');
-const auth=require('../middleware/auth')
+const auth=require('../middleware/auth');
+const employeeController = require('../controllers/employeeController');
+const Management = require('../models/Management');
 
 // GET all employees
-router.get('/', auth.isAuth, auth.isAdmin, async (req, res) => {
-  try {
-    const employees = await Employee.find().select("-passwordHash -__v");
-    res.json(employees);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+router.get("/", auth.isAuth,auth.isAdmin, employeeController.getEmployees);
 
 // GET one employee
 router.get('/:id', auth.isAuth, getEmployee, (req, res) => {
@@ -87,5 +82,40 @@ async function getEmployee(req, res, next) {
   res.employee = employee;
   next();
 }
+
+// Put attendance for an employee
+router.post('/attendance',  async (req, res) => {
+  const attendance = new Management({
+    action: req.body.action,
+    employee: req.body.employee,
+    date: req.body.date,
+    present: req.body.present,
+  });
+
+  try {
+    const newAttendance = await attendance.save();
+    res.status(201).json(newAttendance);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+router.post('/leave',  async (req, res) => {
+  const leave = new Management({
+    action: req.body.action,
+    employee: req.body.employee,
+    leaveType: req.body.leaveType,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    reason: req.body.reason,
+  });
+
+  try {
+    const newLeave = await leave.save();
+    res.status(201).json(newLeave);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 module.exports = router;

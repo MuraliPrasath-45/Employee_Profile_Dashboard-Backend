@@ -3,7 +3,7 @@ const router = express.Router();
 const Employee = require('../models/employee');
 const auth=require('../middleware/auth');
 const employeeController = require('../controllers/employeeController');
-const Management = require('../models/Management');
+const Management = require('../models/management');
 
 // GET all employees
 router.get("/", auth.isAuth,auth.isAdmin, employeeController.getEmployees);
